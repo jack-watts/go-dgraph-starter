@@ -1,11 +1,11 @@
 mutation {
-  addProduct(input: [{ name: "Dgraph" }, { name: "Dgraph Cloud" }]) {
+  addProduct(input: [{ name: "Dgraph" }, { name: "Dgraph Cloud" }, { name: "FishTank Cloud" },, { name: "Trench Digital" }]) {
     product {
       id
       name
     }
   }
-  addCustomer(input: [{ username: "TonyStark" }]) {
+  addCustomer(input: [{ username: "Jack Watts" }]) {
     customer {
       username
     }
@@ -13,11 +13,29 @@ mutation {
   addReview(
     input: [
       {
-        by: { username: "TonyStark" }
+        by: { username: "Jack Watts" }
         about: { name: "Dgraph" }
         comment: "Fantastic, easy to install, worked great. Best GraphQL server available"
         rating: 10
-      }
+      },
+      {
+        by: { username: "Jack Watts" }
+        about: { name: "Dgraph Cloud" }
+        comment: "Pretty nifty Cloud service"
+        rating: 10
+      },
+      {
+        by: { username: "Jack Watts" }
+        about: { name: "Fish Tank Cloud" }
+        comment: "Awesome free APPs!"
+        rating: 10
+      },
+      {
+        by: { username: "Jack Watts" }
+        about: { name: "Trench Digital" }
+        comment: "Pretty cool stuff!!"
+        rating: 10
+      }               
     ]
   ) {
     review {

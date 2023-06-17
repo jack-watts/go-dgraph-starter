@@ -11,8 +11,13 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/dgraph-io/dgo/v230"
 	"github.com/jack-watts/go-dgraph-starter/app/services/api/config"
 )
+
+type Application struct {
+	DG *dgo.Dgraph
+}
 
 func main() {
 	var cfg config.Config
@@ -20,7 +25,7 @@ func main() {
 
 	// Set CMD Flags
 	flag.StringVar(&cfg.Web.Addr, "web-host", "localhost:8081", "set the hostname for the service. default: localhost:8081")
-	flag.StringVar(&cfg.DgURL, "dgraph-host", "localhost:8080", "set the DGraph host url. default: localhost:8081")
+	flag.StringVar(&cfg.DgURL, "dgraph-host", "localhost:8080", "set the DGraph host url. default: localhost:8080")
 
 	if err := run(&cfg); err != nil {
 		log.Fatalf("Unable to start service: %s\n", err)
@@ -35,11 +40,23 @@ func run(cfg *config.Config) error {
 	log.Print("starting service")
 	defer log.Print("shutdown complete")
 
+	// =============================================================================
+	// get a new DGraph client connection
+	dg, cancel := getDgraphClient()
+	defer cancel()
+
+	app := Application{
+		DG: dg,
+	}
+
+	// =============================================================================
+	// start the API service
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
 
 	api := http.Server{
 		Addr:         cfg.Web.Addr,
+		Handler:      app.routes(),
 		ReadTimeout:  cfg.Web.ReadTimeout,
 		WriteTimeout: cfg.Web.WriteTimeout,
 		IdleTimeout:  cfg.Web.IdleTimeout,
