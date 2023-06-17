@@ -60,8 +60,8 @@ func run(cfg *config.Config) error {
 		return fmt.Errorf("server error: %w", err)
 
 	case sig := <-shutdown:
-		log.Printf("shutdown started:signal:%s\n", sig)
-		defer log.Printf("shutdown complete:signal:%s\n", sig)
+		log.Printf("graceful shutdown started:signal:%s\n", sig)
+		defer log.Printf("graceful shutdown complete:signal:%s\n", sig)
 
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*20)
 		defer cancel()
