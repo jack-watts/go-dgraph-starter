@@ -1,9 +1,15 @@
 package main
 
 import (
+	"context"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/jack-watts/go-dgraph-starter/app/services/api/config"
 )
@@ -17,7 +23,7 @@ func main() {
 	flag.StringVar(&cfg.DgURL, "dgraph-host", "localhost:8080", "set the DGraph host url. default: localhost:8081")
 
 	if err := run(&cfg); err != nil {
-		log.Fatalf("Unable to start sevrice: %s\n", err)
+		log.Fatalf("Unable to start service: %s\n", err)
 	}
 }
 
@@ -29,6 +35,9 @@ func run(cfg *config.Config) error {
 	log.Print("starting service")
 	defer log.Print("shutdown complete")
 
+	shutdown := make(chan os.Signal, 1)
+	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
+
 	api := http.Server{
 		Addr:         cfg.Web.Addr,
 		ReadTimeout:  cfg.Web.ReadTimeout,
@@ -36,8 +45,31 @@ func run(cfg *config.Config) error {
 		IdleTimeout:  cfg.Web.IdleTimeout,
 	}
 
-	if err := api.ListenAndServe(); err != nil {
-		return err
+	serverErrors := make(chan error, 1)
+
+	go func() {
+		log.Printf("Starting api V1 router, host: %s\n", api.Addr)
+		serverErrors <- api.ListenAndServe()
+	}()
+
+	// =============================================================================
+	// set up graceful shutdown
+
+	select {
+	case err := <-serverErrors:
+		return fmt.Errorf("server error: %w", err)
+
+	case sig := <-shutdown:
+		log.Printf("shutdown started:signal:%s\n", sig)
+		defer log.Printf("shutdown complete:signal:%s\n", sig)
+
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*20)
+		defer cancel()
+
+		if err := api.Shutdown(ctx); err != nil {
+			api.Close()
+			return fmt.Errorf("could not stop server gracefully: %w", err)
+		}
 	}
 
 	return nil
