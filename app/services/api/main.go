@@ -25,7 +25,7 @@ func main() {
 
 	// Set CMD Flags
 	flag.StringVar(&cfg.Web.Addr, "web-host", "localhost:8081", "set the hostname for the service. default: localhost:8081")
-	flag.StringVar(&cfg.DgURL, "dgraph-host", "localhost:8080", "set the DGraph host url. default: localhost:8080")
+	flag.StringVar(&cfg.DgURL, "dgraph-host", "localhost:9080", "set the DGraph host url. default: localhost:9080")
 
 	if err := run(&cfg); err != nil {
 		log.Fatalf("Unable to start service: %s\n", err)
@@ -42,7 +42,7 @@ func run(cfg *config.Config) error {
 
 	// =============================================================================
 	// get a new DGraph client connection
-	dg, cancel := getDgraphClient()
+	dg, cancel := getDgraphClient(cfg)
 	defer cancel()
 
 	app := Application{
