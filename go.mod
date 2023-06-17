@@ -3,7 +3,6 @@ module github.com/jack-watts/go-dgraph-starter
 go 1.20
 
 require (
-	github.com/dgraph-io/dgo v1.0.0
 	github.com/dgraph-io/dgo/v230 v230.0.1
 	github.com/go-chi/chi v1.5.4
 	google.golang.org/grpc v1.56.0
