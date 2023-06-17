@@ -1,0 +1,37 @@
+mutation {
+  addProduct(input: [{ name: "Dgraph" }, { name: "Dgraph Cloud" }]) {
+    product {
+      id
+      name
+    }
+  }
+  addCustomer(input: [{ username: "TonyStark" }]) {
+    customer {
+      username
+    }
+  }
+  addReview(
+    input: [
+      {
+        by: { username: "TonyStark" }
+        about: { name: "Dgraph" }
+        comment: "Fantastic, easy to install, worked great. Best GraphQL server available"
+        rating: 10
+      }
+    ]
+  ) {
+    review {
+      id
+      comment
+      rating
+      by {
+        username
+      }
+      about {
+        id
+        name
+      }
+    }
+  }
+}
+

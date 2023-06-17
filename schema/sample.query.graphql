@@ -1,0 +1,22 @@
+query {
+  queryReview(filter: { comment: { alloftext: "server easy install" }, rating: { gt: 5 } }) {
+    comment
+    by {
+      username
+      reviews(order: { desc: rating }, first: 10) {
+        about {
+          name
+          reviews(order: { asc: rating }, first: 5) {
+            by { username }
+            comment
+            rating
+          }
+        }
+        rating
+      }
+    }
+    about {
+      name
+    }
+  }
+}
